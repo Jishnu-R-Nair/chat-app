@@ -7,7 +7,12 @@ const {
   generateMessage,
   generateLocationMessage,
 } = require('../src/utils/messages');
-const { addUser, removeUser, getUsersInRoom } = require('./utils/users');
+const {
+  addUser,
+  removeUser,
+  getUsersInRoom,
+  getUser,
+} = require('./utils/users');
 
 const port = process.env.PORT || 3000;
 const publicDirectory = path.join(__dirname, '../public');
@@ -37,13 +42,20 @@ io.on('connection', (socket) => {
 
   socket.on('sendMessage', (message, callback) => {
     if (filter.isProfane(message)) return callback('Profanity is not allowed');
+    const user = getUser(socket.id);
 
-    io.to('Pala').emit('message', generateMessage(message));
+    if (!user) return callback('User not found');
+
+    io.to(user.room).emit('message', generateMessage(message));
     callback();
   });
 
   socket.on('sendLocation', ({ latitude, longitude }, callback) => {
-    io.emit(
+    const user = getUser(socket.id);
+
+    if (!user) return callback('User not found');
+
+    io.to(user.room).emit(
       'locationMessage',
       generateLocationMessage(
         `https://www.google.com/maps?q=${latitude},${longitude}`
