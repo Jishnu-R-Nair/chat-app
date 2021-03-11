@@ -7,12 +7,7 @@ const {
   generateMessage,
   generateLocationMessage,
 } = require('../src/utils/messages');
-const {
-  addUser,
-  removeUser,
-  getUsersInRoom,
-  getUser,
-} = require('./utils/users');
+const { addUser, removeUser, getUser } = require('./utils/users');
 
 const port = process.env.PORT || 3000;
 const publicDirectory = path.join(__dirname, '../public');
@@ -46,7 +41,7 @@ io.on('connection', (socket) => {
 
     if (!user) return callback('User not found');
 
-    io.to(user.room).emit('message', generateMessage(message));
+    io.to(user.room).emit('message', generateMessage(message, user.username));
     callback();
   });
 
@@ -58,7 +53,8 @@ io.on('connection', (socket) => {
     io.to(user.room).emit(
       'locationMessage',
       generateLocationMessage(
-        `https://www.google.com/maps?q=${latitude},${longitude}`
+        `https://www.google.com/maps?q=${latitude},${longitude}`,
+        user.username
       )
     );
     callback();

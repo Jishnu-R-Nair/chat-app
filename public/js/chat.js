@@ -55,20 +55,22 @@ document.querySelector('#send-location').addEventListener('click', () => {
   });
 });
 
-socket.on('message', ({ text, createdAt }) => {
+socket.on('message', ({ text, createdAt, username }) => {
   console.log({ text, createdAt });
   const html = Mustache.render(messageTemplate, {
     message: text,
     createdAt: moment(createdAt).format('h:mm a'),
+    username,
   });
   $messages.insertAdjacentHTML('beforeend', html);
 });
 
-socket.on('locationMessage', ({ url, createdAt }) => {
+socket.on('locationMessage', ({ url, createdAt, username }) => {
   console.log({ url, createdAt });
   const html = Mustache.render(locationMessageTemplate, {
     url,
     createdAt: moment(createdAt).format('h:mm a'),
+    username,
   });
   $messages.insertAdjacentHTML('beforeend', html);
 });
