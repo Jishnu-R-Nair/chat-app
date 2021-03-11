@@ -7,7 +7,12 @@ const {
   generateMessage,
   generateLocationMessage,
 } = require('../src/utils/messages');
-const { addUser, removeUser, getUser } = require('./utils/users');
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersInRoom,
+} = require('./utils/users');
 
 const port = process.env.PORT || 3000;
 const publicDirectory = path.join(__dirname, '../public');
@@ -33,6 +38,12 @@ io.on('connection', (socket) => {
     socket.broadcast
       .to(user.room)
       .emit('message', generateMessage(`${user.username} has joined`));
+
+    io.to(user.room).emit('roomData', {
+      room: user.room,
+      users: getUsersInRoom(user.room),
+    });
+    callback();
   });
 
   socket.on('sendMessage', (message, callback) => {
@@ -68,6 +79,11 @@ io.on('connection', (socket) => {
         'message',
         generateMessage(`${user.username} has left!`)
       );
+
+      io.to(user.room).emit('roomData', {
+        room: user.room,
+        users: getUsersInRoom(user.room),
+      });
     }
   });
 });
